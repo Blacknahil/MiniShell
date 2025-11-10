@@ -11,4 +11,5 @@ int main() {
   std::string input;
   std::cin >> input;
   std::cout << input << ": command not found";
+  
 }
