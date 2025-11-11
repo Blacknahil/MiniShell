@@ -36,6 +36,19 @@ int main() {
       concatenateString(output, argv, 1);
       std::cout << output <<"\n";
     }
+    else if (argc >= 2 && argv[0] == "type")
+    {
+      if (argv[1] == "type" || argv[1] =="echo" || argv[1] == "exit")
+      {
+        std::cout << argv[1] << " is a shell builtin\n";
+      }
+      else 
+      {
+        std::string concatenated;
+        concatenateString(concatenated, argv, 1);
+        std::cout << concatenated <<": not found\n";
+      }
+    }
     else
     {
           std::cout << input << ": command not found\n";
