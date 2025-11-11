@@ -1,9 +1,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
+void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
+
 int main() {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
@@ -27,8 +30,17 @@ int main() {
       }
       return 1;
     }
-    
-    std::cout << input << ": command not found\n";
+    else if (argc >=2 && argv[0]=="echo")
+    {
+      std::string output;
+      concatenateString(output, argv, 1);
+      std::cout << output <<"\n";
+    }
+    else
+    {
+          std::cout << input << ": command not found\n";
+    }
+
   }
 
 
@@ -46,4 +58,14 @@ void splitString(std::vector<std::string>& argList, char delimter, std::string& 
     argList.push_back(token);
     argc++;
   }
+}
+
+void concatenateString(std::string& output, std::vector<std::string>& arr, int index)
+{
+  for (int i= index; i<arr.size()-1; i++)
+  {
+    output+= arr[i];
+    output +=" ";
+  }
+  output += arr[arr.size()-1];
 }
