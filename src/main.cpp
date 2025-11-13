@@ -6,6 +6,7 @@
 
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
+bool checkPath(std::string& output, const std::string& query);
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -46,7 +47,18 @@ int main() {
       {
         std::string concatenated;
         concatenateString(concatenated, argv, 1);
-        std::cout << concatenated <<": not found\n";
+        std::string pathOutput;
+
+        if (checkPath(pathOutput,concatenated))
+        {
+          std::cout << concatenated << " is " << pathOutput;
+
+        }
+        else 
+        {
+           std::cout << concatenated <<": not found\n";
+        }
+       
       }
     }
     else
@@ -55,7 +67,6 @@ int main() {
     }
 
   }
-
 
 }
 
@@ -81,4 +92,9 @@ void concatenateString(std::string& output, std::vector<std::string>& arr, int i
     output +=" ";
   }
   output += arr[arr.size()-1];
+}
+
+bool checkPath(std::string& output, const std::string& query)
+{
+  
 }
