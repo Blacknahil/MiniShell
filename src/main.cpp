@@ -4,7 +4,9 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <unistd.h>
 #include <vector>
+
 
 const char* ENV_VAR_NAME = "PATH";
 
@@ -56,7 +58,7 @@ int main() {
 
         if (checkPath(pathOutput,concatenated))
         {
-          std::cout << concatenated << " is " << pathOutput;
+          std::cout << concatenated << " is " << pathOutput << "\n";
 
         }
         else 
@@ -104,7 +106,7 @@ bool checkPath(std::string& output, const std::string& query)
   const char* path_value = getenv(ENV_VAR_NAME);
   if (path_value == nullptr)
   {
-    std::cerr << ENV_VAR_NAME << " not found! ";
+    std::cerr << ENV_VAR_NAME << " not found!\n";
     return false;
   }
 
@@ -116,8 +118,8 @@ bool checkPath(std::string& output, const std::string& query)
   while(std::getline(pathss, singlePathDir, ':'))
   {
     // check if the singlePathDir + query is a full path dir 
-    std:filesystem::path fullPath = std::filesystem::path(singlePathDir) / query;
-    if(!std::filesystemt::exists(fullPath))
+    std::filesystem::path fullPath = std::filesystem::path(singlePathDir) / query;
+    if(!std::filesystem::exists(fullPath))
     {
      continue;
     }
