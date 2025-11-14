@@ -1,12 +1,17 @@
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include <vector>
 
+const char* ENV_VAR_NAME = "PATH";
+
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
 bool checkPath(std::string& output, const std::string& query);
+
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -96,5 +101,32 @@ void concatenateString(std::string& output, std::vector<std::string>& arr, int i
 
 bool checkPath(std::string& output, const std::string& query)
 {
-  
+  const char* path_value = getenv(ENV_VAR_NAME);
+  if (path_value == nullptr)
+  {
+    std::cerr << ENV_VAR_NAME << " not found! ";
+    return false;
+  }
+
+  std::string pathStr(path_value);
+
+  std::stringstream pathss(pathStr);
+  std::string singlePathDir;
+
+  while(std::getline(pathss, singlePathDir, ':'))
+  {
+    // check if the singlePathDir + query is a full path dir 
+    std:filesystem::path fullPath = std::filesystem::path(singlePathDir) / query;
+    if(!std::filesystemt::exists(fullPath))
+    {
+     continue;
+    }
+    if (access(fullPath.c_str(), X_OK) == 0)
+    {
+      output = fullPath.string();
+      return true;
+    }
+    // and if it is an excutable 
+  }
+  return false;
 }
