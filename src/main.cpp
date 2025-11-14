@@ -10,10 +10,11 @@
 
 const char* ENV_VAR_NAME = "PATH";
 
-void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
-void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
-bool checkPath(std::string& output, const std::string& query);
 bool checkBuiltin(std::string command);
+bool checkPath(std::string& output, const std::string& query);
+void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
+void excuteProgram(std::string& program, std::string& arguments);
+void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 
 
 int main() {
@@ -45,6 +46,7 @@ int main() {
       concatenateString(output, argv, 1);
       std::cout << output <<"\n";
     }
+
     else if (argc >= 2 && argv[0] == "type")
     {
       if (checkBuiltin(argv[1]))
@@ -57,7 +59,7 @@ int main() {
         concatenateString(concatenated, argv, 1);
         std::string pathOutput;
 
-        if (checkPath(pathOutput,concatenated))
+        if (checkPath(pathOutput,argv[0]))
         {
           std::cout << concatenated << " is " << pathOutput << "\n";
 
@@ -71,7 +73,17 @@ int main() {
     }
     else
     {
-          std::cout << input << ": command not found\n";
+          std::string pathOutput;
+          if (checkPath(pathOutput, argv[0]))
+          {
+          std::string arguments;
+          concatenateString(arguments, argv, 1);
+          excuteProgram(argv[0], arguments);
+          }
+          else
+          {
+            std::cout << input << ": command not found\n";
+          }
     }
 
   }
@@ -145,4 +157,10 @@ bool checkBuiltin(std::string command)
     }
   }
   return false;
+}
+void excuteProgram(std::string& program, std::string& arguments)
+{
+  std::string command(program + " " + arguments);
+  const char* commandChar = command.c_str();
+  std::system(commandChar);
 }
