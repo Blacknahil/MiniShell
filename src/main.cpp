@@ -59,7 +59,7 @@ int main() {
         concatenateString(concatenated, argv, 1);
         std::string pathOutput;
 
-        if (checkPath(pathOutput,argv[0]))
+        if (checkPath(pathOutput,argv[1]))
         {
           std::cout << concatenated << " is " << pathOutput << "\n";
 
