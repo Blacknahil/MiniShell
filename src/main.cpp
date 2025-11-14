@@ -13,6 +13,7 @@ const char* ENV_VAR_NAME = "PATH";
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
 bool checkPath(std::string& output, const std::string& query);
+bool checkBuiltin(std::string command);
 
 
 int main() {
@@ -46,7 +47,7 @@ int main() {
     }
     else if (argc >= 2 && argv[0] == "type")
     {
-      if (argv[1] == "type" || argv[1] =="echo" || argv[1] == "exit")
+      if (checkBuiltin(argv[1]))
       {
         std::cout << argv[1] << " is a shell builtin\n";
       }
@@ -129,6 +130,19 @@ bool checkPath(std::string& output, const std::string& query)
       return true;
     }
     // and if it is an excutable 
+  }
+  return false;
+}
+
+bool checkBuiltin(std::string command)
+{
+  const std::vector<std::string> builtins = {"type", "echo", "exit"};
+  for(const std::string builtin:builtins)
+  {
+    if (command == builtin)
+    {
+      return true;
+    }
   }
   return false;
 }
