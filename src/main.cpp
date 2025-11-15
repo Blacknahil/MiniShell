@@ -14,6 +14,7 @@ bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
 void excuteProgram(std::string& program, std::string& arguments);
+void pwd(std::string& output);
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 
 
@@ -70,6 +71,12 @@ int main() {
         }
        
       }
+    }
+    else if (argc ==1 && argv[0] =="pwd")
+    {
+      std::string output;
+      pwd(output);
+      std::cout << output <<"\n";
     }
     else
     {
@@ -148,7 +155,7 @@ bool checkPath(std::string& output, const std::string& query)
 
 bool checkBuiltin(std::string command)
 {
-  const std::vector<std::string> builtins = {"type", "echo", "exit"};
+  const std::vector<std::string> builtins = {"type", "echo", "exit","pwd"};
   for(const std::string builtin:builtins)
   {
     if (command == builtin)
@@ -163,4 +170,11 @@ void excuteProgram(std::string& program, std::string& arguments)
   std::string command(program + " " + arguments);
   const char* commandChar = command.c_str();
   std::system(commandChar);
+}
+
+void pwd(std::string& output)
+{
+  std::filesystem::path current_path = std::filesystem::current_path();
+  output = current_path.string();
+
 }
