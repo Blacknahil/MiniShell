@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -193,6 +194,19 @@ void pwd(std::string& output)
 
 bool changeDirectory(const std::string& pathStr)
 {
+  // check if tilde
+  if (pathStr == "~")
+  {
+    const char* homePathvalue = getenv("HOME");
+    if (homePathvalue == nullptr)
+    {
+    std::cerr << ENV_VAR_NAME << " not found!\n";
+    return false;
+    }
+    chdir(homePathvalue);
+    return true;
+  }
+
   std::filesystem::path path = std::filesystem::path(pathStr);
   if (!std::filesystem::exists(path) ||
       !std::filesystem::is_directory(path))
