@@ -10,6 +10,7 @@
 
 const char* ENV_VAR_NAME = "PATH";
 
+bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
@@ -74,9 +75,20 @@ int main() {
     }
     else if (argc ==1 && argv[0] =="pwd")
     {
+
       std::string output;
       pwd(output);
       std::cout << output <<"\n";
+
+    }
+    else if (argc == 2 && argv[0] == "cd")
+    {
+
+      if (!changeDirectory(argv[1]))
+      {
+        std::cout << "cd: " << argv[1] << ": No such file or directory\n";
+      }
+
     }
     else
     {
@@ -155,7 +167,7 @@ bool checkPath(std::string& output, const std::string& query)
 
 bool checkBuiltin(std::string command)
 {
-  const std::vector<std::string> builtins = {"type", "echo", "exit","pwd"};
+  const std::vector<std::string> builtins = {"type", "echo", "exit","pwd", "cd"};
   for(const std::string builtin:builtins)
   {
     if (command == builtin)
@@ -176,5 +188,23 @@ void pwd(std::string& output)
 {
   std::filesystem::path current_path = std::filesystem::current_path();
   output = current_path.string();
+
+}
+
+bool changeDirectory(const std::string& pathStr)
+{
+  std::filesystem::path path = std::filesystem::path(pathStr);
+  if (!std::filesystem::exists(path) ||
+      !std::filesystem::is_directory(path))
+  {
+    return false;
+  }
+
+  if (chdir(pathStr.c_str()) == 0)
+  {
+    return true;
+  }
+
+  return false;
 
 }
