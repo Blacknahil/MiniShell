@@ -238,9 +238,9 @@ void excuteProgram(std::vector<std::string>& parsed_args)
   else if (pid == 0)
   {
     std::vector<char*> cStyleArgs;
-    for (int i=1; i<parsed_args.size(); ++i)
+    for (int i=0; i < parsed_args.size(); ++i)
     {
-      std::cout << "arg: " << parsed_args[i] << std::endl;
+      // std::cout << "arg: " << parsed_args[i] << std::endl;
       cStyleArgs.push_back(strdup(parsed_args[i].c_str()));
     }
     cStyleArgs.push_back(nullptr);
