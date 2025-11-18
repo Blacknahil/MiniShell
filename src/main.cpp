@@ -100,6 +100,7 @@ int main() {
           {
           std::string arguments;
           concatenateString(arguments, argv, 1);
+          std::cout << arguments << '\n';
           excuteProgram(argv[0], arguments);
           }
           else
@@ -174,7 +175,9 @@ void concatenateString(std::string& output, std::vector<std::string>& arr, int i
 {
   for (int i= index; i<arr.size()-1; i++)
   {
+    output += '\'';
     output+= arr[i];
+    output += '\'';
     output +=" ";
   }
   output += arr[arr.size()-1];
