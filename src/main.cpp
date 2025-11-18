@@ -10,6 +10,7 @@
 
 
 const char* ENV_VAR_NAME = "PATH";
+const char SINGLE_QUOTE = '\'';
 
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
@@ -46,6 +47,7 @@ int main() {
     else if (argc >=2 && argv[0]=="echo")
     {
       std::string output;
+      // std::cout << "length : " << argv.size() -1 << "\n";
       concatenateString(output, argv, 1);
       std::cout << output <<"\n";
     }
@@ -113,15 +115,59 @@ int main() {
 
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc)
 {
-  std::istringstream stream(input);
+  std::string currentToken;
+  bool inQuote = false;
 
-  std::string token;
-
-  while (std::getline(stream, token, delimter))
+  for (int i = 0; i < input.size(); i++)
   {
-    argList.push_back(token);
+    char c = input[i];
+    if(inQuote)
+    {
+      if (c == SINGLE_QUOTE)
+      {
+        inQuote = false;
+        // argList.push_back(currentToken);
+        // // std::cout << "found token: "<< currentToken << '\n';
+        // currentToken.clear();
+        // argc++;
+      }
+      else 
+      {
+        currentToken.push_back(c);
+      }
+    }
+    else
+    {
+      if (c == SINGLE_QUOTE)
+      {
+        inQuote = true;
+      }
+      else if (c == ' ')
+      {
+        if (!currentToken.empty())
+        {
+          argList.push_back(currentToken);
+          // std::cout << "found token: "<< currentToken << '\n';
+          currentToken.clear();
+          argc++;
+        }
+      }
+      else 
+      {
+        currentToken += c;
+      }
+      
+      
+    }
+  }
+
+  if (!currentToken.empty())
+  {
+    argList.push_back(currentToken);
+    //  std::cout << "found token: "<< currentToken << '\n';
     argc++;
   }
+
 }
 
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index)
