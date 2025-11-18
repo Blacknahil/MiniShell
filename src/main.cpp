@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
@@ -7,6 +8,7 @@
 #include <string_view>
 #include <unistd.h>
 #include <vector>
+#include <sys/wait.h>
 
 
 const char* ENV_VAR_NAME = "PATH";
@@ -16,9 +18,10 @@ bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
-void excuteProgram(std::string& program, std::string& arguments);
+void excuteProgram(std::vector<std::string>& parsed_args);
 void pwd(std::string& output);
 void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
+void prepareArgsExternal(std::string& output, std::vector<std::string>& arr, int index);
 
 
 int main() {
@@ -99,9 +102,8 @@ int main() {
           if (checkPath(pathOutput, argv[0]))
           {
           std::string arguments;
-          concatenateString(arguments, argv, 1);
-          std::cout << arguments << '\n';
-          excuteProgram(argv[0], arguments);
+          // std::cout << arguments << '\n';
+          excuteProgram(argv);
           }
           else
           {
@@ -175,9 +177,7 @@ void concatenateString(std::string& output, std::vector<std::string>& arr, int i
 {
   for (int i= index; i<arr.size()-1; i++)
   {
-    output += '\'';
     output+= arr[i];
-    output += '\'';
     output +=" ";
   }
   output += arr[arr.size()-1];
@@ -227,11 +227,30 @@ bool checkBuiltin(std::string command)
   }
   return false;
 }
-void excuteProgram(std::string& program, std::string& arguments)
+void excuteProgram(std::vector<std::string>& parsed_args)
 {
-  std::string command(program + " " + arguments);
-  const char* commandChar = command.c_str();
-  std::system(commandChar);
+  pid_t pid = fork();
+  if (pid == -1)
+  {
+    std::cerr << "fork failed" << std::endl;
+    return;
+  }
+  else if (pid == 0)
+  {
+    std::vector<char*> cStyleArgs;
+    for (int i=1; i<parsed_args.size(); ++i)
+    {
+      std::cout << "arg: " << parsed_args[i] << std::endl;
+      cStyleArgs.push_back(strdup(parsed_args[i].c_str()));
+    }
+    cStyleArgs.push_back(nullptr);
+    execvp(parsed_args[0].c_str(), cStyleArgs.data());
+  }
+  else 
+  {
+    int status;
+    waitpid(pid, &status, 0);
+  }
 }
 
 void pwd(std::string& output)
