@@ -1,34 +1,97 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/245d7ec4-8647-40fe-bfaa-2d8155606bc7)](https://app.codecrafters.io/users/Blacknahil?r=2qF)
+# MiniShell (C++23)
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+MiniShell is a personal exploration of how UNIX shells work under the hood. The goal is to build a small, understandable, POSIX‑leaning shell in modern C++ while iteratively adding features (parsing, builtins, job control, redirection, pipelines, scripting, etc.).
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+Current focus: a clean, minimal core that executes external programs and a handful of builtin commands reliably.
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+## Implemented Features (so far)
 
-# Passing the first stage
+- Prompt loop (`$`) with line input
+- Tokenizer with basic single & double quote handling
+- Builtins: `echo`, `exit <status>`, `type`, `pwd`, `cd` (including `cd ~`)
+- External command execution via `fork + execvp`
+- Path lookup using `$PATH`
+- Basic error messages for unknown commands & invalid `cd` targets
 
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+## 🔜 Near-Term Roadmap
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+- Improve quote/state machine & escaped characters
+- Environment variable expansion (`$VAR`)
+- I/O redirection (`>`, `>>`, `<`)
+- Pipelines (`cmd1 | cmd2`)
+- Command history & optional readline integration
+- Signals & basic job control (foreground/background)
+- Configuration & startup rc file
+- Builtin improvements: `export`, `unset`, `which` alternative, `help`
+
+## 🧱 Project Structure
+
+```text
+src/            # C++ source (entry point: main.cpp)
+CMakeLists.txt  # Build definition (target: shell)
+your_program.sh # Convenience wrapper to build & run locally
 ```
 
-Time to move on to the next stage!
+## 🔧 Build & Run
 
-# Stage 2 & beyond
+Requires: CMake (>=3.13), a C++23 capable compiler, and (optionally) `readline` (linked, may be leveraged later for history/editing).
 
-Note: This section is for stages 2 and beyond.
+### Standard build
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+```bash
+mkdir -p build
+cmake -S . -B build
+cmake --build build
+./build/shell
+```
+
+### Using the helper script
+
+```bash
+./your_program.sh
+```
+
+The script currently configures via CMake and then runs the produced `shell` binary.
+
+## 🕹 Usage Examples
+
+```bash
+$ echo "Hello world"
+Hello world
+
+$ pwd
+/current/working/directory
+
+$ cd ~
+$ pwd
+/Users/yourname
+
+$ type echo
+echo is a shell builtin
+
+$ type ls
+ls is /bin/ls
+
+$ exit 0
+```
+
+##  Design Notes
+
+- Parsing currently uses a single pass tokenizer with quote state tracking; future iterations will separate lexing and parsing for extensibility.
+- Builtins are detected via a simple vector lookup (`type` reports whether a name is builtin or resolved via `$PATH`).
+- External execution uses `fork` then `execvp` with a temporary `char*` argv construction; later versions will manage memory more robustly.
+
+##  Goals
+
+Keep the codebase small, readable and educational—each feature added only after understanding its underlying system calls and edge cases.
+
+##  Contributing / Feedback
+
+This is a personal learning project. Ideas, suggestions, or critiques are welcome.
+
+## 📄 License
+
+TBD (will add a permissive license once the feature set stabilizes).
+
+---
+
