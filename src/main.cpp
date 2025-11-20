@@ -11,8 +11,12 @@
 #include <sys/wait.h>
 
 
+enum QUOTE_STATE {NORMAL, IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE};
 const char* ENV_VAR_NAME = "PATH";
 const char SINGLE_QUOTE = '\'';
+const char DOUBLE_QUOTE = '\"';
+
+
 
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
@@ -20,7 +24,7 @@ bool checkPath(std::string& output, const std::string& query);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
 void excuteProgram(std::vector<std::string>& parsed_args);
 void pwd(std::string& output);
-void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
+void tokenizer(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 void prepareArgsExternal(std::string& output, std::vector<std::string>& arr, int index);
 
 
@@ -37,7 +41,7 @@ int main() {
 
     std::vector<std::string> argv;
     int argc = 0;
-    splitString(argv, ' ', input,argc);
+    tokenizer(argv, ' ', input,argc);
     // std::cout << "size : " << argc <<  "argv[0]"<< argv[0];
     if (argc ==2 && argv[0] == "exit")
     {
@@ -116,34 +120,28 @@ int main() {
 }
 
 
-void splitString(std::vector<std::string>& argList, char delimter, std::string& input, int& argc)
+void tokenizer(std::vector<std::string>& argList, char delimter, std::string& input, int& argc)
 {
   std::string currentToken;
-  bool inQuote = false;
+  bool inSingleQuote = false;
+  bool inDoubleQuote = false;
+  QUOTE_STATE state = QUOTE_STATE::NORMAL;
 
   for (int i = 0; i < input.size(); i++)
   {
     char c = input[i];
-    if(inQuote)
+
+    if (state == QUOTE_STATE::NORMAL)
     {
       if (c == SINGLE_QUOTE)
       {
-        inQuote = false;
-        // argList.push_back(currentToken);
-        // // std::cout << "found token: "<< currentToken << '\n';
-        // currentToken.clear();
-        // argc++;
+        inSingleQuote = true;
+        state = QUOTE_STATE::IN_SINGLE_QUOTE;
       }
-      else 
+      else if (c == DOUBLE_QUOTE)
       {
-        currentToken.push_back(c);
-      }
-    }
-    else
-    {
-      if (c == SINGLE_QUOTE)
-      {
-        inQuote = true;
+        inDoubleQuote = true;
+        state = QUOTE_STATE::IN_DOUBLE_QUOTE;
       }
       else if (c == ' ')
       {
@@ -159,9 +157,87 @@ void splitString(std::vector<std::string>& argList, char delimter, std::string& 
       {
         currentToken += c;
       }
-      
-      
     }
+
+    else if (state == QUOTE_STATE::IN_SINGLE_QUOTE)
+    {
+      if(inSingleQuote)
+      {
+        if (c == SINGLE_QUOTE)
+        {
+          inSingleQuote = false;
+          // argList.push_back(currentToken);
+          // // std::cout << "found token: "<< currentToken << '\n';
+          // currentToken.clear();
+          // argc++;
+        }
+        else 
+        {
+          currentToken.push_back(c);
+        }
+      }
+      else
+      {
+        if (c == SINGLE_QUOTE)
+        {
+          inSingleQuote = true;
+        }
+        else if (c == ' ')
+        {
+          if (!currentToken.empty())
+          {
+            argList.push_back(currentToken);
+            // std::cout << "found token: "<< currentToken << '\n';
+            currentToken.clear();
+            argc++;
+          }
+        }
+        else 
+        {
+          currentToken += c;
+        }
+      }
+    }
+    else if (state == QUOTE_STATE::IN_DOUBLE_QUOTE)
+    {
+      if(inDoubleQuote)
+      {
+        if (c == DOUBLE_QUOTE)
+        {
+          inDoubleQuote = false;
+          // argList.push_back(currentToken);
+          // // std::cout << "found token: "<< currentToken << '\n';
+          // currentToken.clear();
+          // argc++;
+        }
+        else 
+        {
+          currentToken.push_back(c);
+        }
+      }
+      else
+      {
+        if (c == DOUBLE_QUOTE)
+        {
+          inDoubleQuote = true;
+        }
+        else if (c == ' ')
+        {
+          if (!currentToken.empty())
+          {
+            argList.push_back(currentToken);
+            // std::cout << "found token: "<< currentToken << '\n';
+            currentToken.clear();
+            argc++;
+          }
+        }
+        else 
+        {
+          currentToken += c;
+        }
+      }
+    }
+
   }
 
   if (!currentToken.empty())
