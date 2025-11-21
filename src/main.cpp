@@ -15,8 +15,7 @@ enum QUOTE_STATE {NORMAL, IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE};
 const char* ENV_VAR_NAME = "PATH";
 const char SINGLE_QUOTE = '\'';
 const char DOUBLE_QUOTE = '\"';
-
-
+const char BACKSLASH = '\\';
 
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
@@ -43,13 +42,13 @@ int main() {
     int argc = 0;
     tokenizer(argv, ' ', input,argc);
     // std::cout << "size : " << argc <<  "argv[0]"<< argv[0];
-    if (argc ==2 && argv[0] == "exit")
+    if (argv[0] == "exit")
     {
-      if (argv[1] == "0")
+      if (argc >1 && argv[1] == "1")
       {
-        return 0;
+        return 1;
       }
-      return 1;
+      return 0;
     }
     else if (argc >=2 && argv[0]=="echo")
     {
@@ -127,7 +126,10 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
   bool inDoubleQuote = false;
   QUOTE_STATE state = QUOTE_STATE::NORMAL;
 
-  for (int i = 0; i < input.size(); i++)
+  int i = 0;
+  int length = input.size();
+
+  while( i < length)
   {
     char c = input[i];
 
@@ -152,6 +154,15 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
           currentToken.clear();
           argc++;
         }
+      }
+      else if (c == BACKSLASH)
+      {
+        if (i+1 < length)
+        {
+          currentToken += input[i+1];
+        }
+        i+=2;
+        continue;
       }
       else 
       {
@@ -237,7 +248,7 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
         }
       }
     }
-
+    i++;
   }
 
   if (!currentToken.empty())
