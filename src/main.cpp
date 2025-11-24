@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <vector>
 #include <sys/wait.h>
+#include <unordered_set>
 
 
 enum QUOTE_STATE {NORMAL, IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE};
@@ -16,12 +17,14 @@ const char* ENV_VAR_NAME = "PATH";
 const char SINGLE_QUOTE = '\'';
 const char DOUBLE_QUOTE = '\"';
 const char BACKSLASH = '\\';
+const std::unordered_set<char> DOUBLE_QUOTES_ESCAPES {'\\', '\"'};
 
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
 void concatenateString(std::string& output, std::vector<std::string>& arr, int index);
 void excuteProgram(std::vector<std::string>& parsed_args);
+bool isEscape(QUOTE_STATE state, char c);
 void pwd(std::string& output);
 void tokenizer(std::vector<std::string>& argList, char delimter, std::string& input, int& argc);
 void prepareArgsExternal(std::string& output, std::vector<std::string>& arr, int index);
@@ -128,6 +131,7 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
 
   int i = 0;
   int length = input.size();
+  std::cout << "length is " << length << std::endl;
 
   while( i < length)
   {
@@ -221,6 +225,28 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
           // currentToken.clear();
           // argc++;
         }
+        else if (c == BACKSLASH)
+        {
+          if (i+1 < length)
+          {
+            if (isEscape(QUOTE_STATE::IN_DOUBLE_QUOTE, input[i+1]))
+            {
+              std::cout << "escaping : i= " << i+1 << "\n";
+              currentToken += input[i+1];
+              i+=2;
+              continue;
+            }
+            else 
+            {
+              currentToken+= BACKSLASH;
+              i++;
+              continue;
+            }
+
+          }
+          currentToken+= BACKSLASH;
+          i++;
+        }
         else 
         {
           currentToken.push_back(c);
@@ -242,6 +268,27 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
             argc++;
           }
         }
+        else if (c == BACKSLASH)
+        {
+        if (i+1 < length)
+          {
+            if (isEscape(QUOTE_STATE::IN_DOUBLE_QUOTE, input[i+1]))
+            {
+              std::cout << "escaping : i= " << i+1 << "\n";
+              currentToken += input[i+1];
+              i+=2;
+              continue;
+            }
+            else 
+            {
+              currentToken+= BACKSLASH;
+              i++;
+              continue;
+            }
+
+          }
+        }
+
         else 
         {
           currentToken += c;
@@ -376,4 +423,23 @@ bool changeDirectory(const std::string& pathStr)
 
   return false;
 
+}
+
+bool isEscape(QUOTE_STATE state, char c)
+{
+  if (state == QUOTE_STATE::IN_DOUBLE_QUOTE)
+  {
+    if (DOUBLE_QUOTES_ESCAPES.find(c) != DOUBLE_QUOTES_ESCAPES.end())
+    {
+      std::cout << "true\n";
+      return true;
+    }
+      std::cout << "false can not be found: " << c << "\n";
+    return false;
+  }
+  else 
+  {
+    std::cout << "state unknown " << c << "\n";
+    return true;
+  }
 }
