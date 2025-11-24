@@ -131,7 +131,6 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
 
   int i = 0;
   int length = input.size();
-  std::cout << "length is " << length << std::endl;
 
   while( i < length)
   {
@@ -220,10 +219,6 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
         if (c == DOUBLE_QUOTE)
         {
           inDoubleQuote = false;
-          // argList.push_back(currentToken);
-          // // std::cout << "found token: "<< currentToken << '\n';
-          // currentToken.clear();
-          // argc++;
         }
         else if (c == BACKSLASH)
         {
@@ -231,18 +226,10 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
           {
             if (isEscape(QUOTE_STATE::IN_DOUBLE_QUOTE, input[i+1]))
             {
-              std::cout << "escaping : i= " << i+1 << "\n";
               currentToken += input[i+1];
               i+=2;
               continue;
             }
-            else 
-            {
-              currentToken+= BACKSLASH;
-              i++;
-              continue;
-            }
-
           }
           currentToken+= BACKSLASH;
           i++;
@@ -274,19 +261,13 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
           {
             if (isEscape(QUOTE_STATE::IN_DOUBLE_QUOTE, input[i+1]))
             {
-              std::cout << "escaping : i= " << i+1 << "\n";
               currentToken += input[i+1];
               i+=2;
               continue;
             }
-            else 
-            {
+          }
               currentToken+= BACKSLASH;
               i++;
-              continue;
-            }
-
-          }
         }
 
         else 
@@ -431,15 +412,14 @@ bool isEscape(QUOTE_STATE state, char c)
   {
     if (DOUBLE_QUOTES_ESCAPES.find(c) != DOUBLE_QUOTES_ESCAPES.end())
     {
-      std::cout << "true\n";
       return true;
     }
-      std::cout << "false can not be found: " << c << "\n";
+      // std::cout << "false can not be found: " << c << "\n";
     return false;
   }
   else 
   {
-    std::cout << "state unknown " << c << "\n";
+    // std::cout << "state unknown " << c << "\n";
     return true;
   }
 }
