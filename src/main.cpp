@@ -180,10 +180,6 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
         if (c == SINGLE_QUOTE)
         {
           inSingleQuote = false;
-          // argList.push_back(currentToken);
-          // // std::cout << "found token: "<< currentToken << '\n';
-          // currentToken.clear();
-          // argc++;
         }
         else 
         {
@@ -231,12 +227,11 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
               continue;
             }
           }
-          currentToken+= BACKSLASH;
-          i++;
+          currentToken += BACKSLASH;
         }
         else 
         {
-          currentToken.push_back(c);
+          currentToken += c;
         }
       }
       else
@@ -250,7 +245,6 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
           if (!currentToken.empty())
           {
             argList.push_back(currentToken);
-            // std::cout << "found token: "<< currentToken << '\n';
             currentToken.clear();
             argc++;
           }
@@ -266,8 +260,7 @@ void tokenizer(std::vector<std::string>& argList, char delimter, std::string& in
               continue;
             }
           }
-              currentToken+= BACKSLASH;
-              i++;
+              currentToken += BACKSLASH;
         }
 
         else 
