@@ -43,7 +43,8 @@ int main() {
         if (isRedirect.index +1 < argc)
         {
           // write to file 
-           std::cout << output <<"\n";
+          writeToFile(output, argv[isRedirect.index +1]);
+          //  std::cout << output <<"\n";
         }
         else 
         {

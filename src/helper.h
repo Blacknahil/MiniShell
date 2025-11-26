@@ -13,7 +13,6 @@ struct RedirectOutput
     size_t index;
 };
 
-
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
@@ -23,3 +22,4 @@ bool isEscape(QUOTE_STATE state, char c);
 void pwd(std::string& output);
 void prepareArgsExternal(std::string& output, std::vector<std::string>& arr, int index);
 RedirectOutput checkRedirection(std::vector<std::string>& argList);
+void writeToFile(std::string& content, std::string& fileName);

@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -8,8 +9,10 @@
 
 #include "helper.h"
 
+namespace fs = std::filesystem;
 
 const char* ENV_VAR_NAME = "PATH";
+
 
 bool isEscape(QUOTE_STATE state, char c)
 {
@@ -56,8 +59,8 @@ bool checkPath(std::string& output, const std::string& query)
   while(std::getline(pathss, singlePathDir, ':'))
   {
     // check if the singlePathDir + query is a full path dir 
-    std::filesystem::path fullPath = std::filesystem::path(singlePathDir) / query;
-    if(!std::filesystem::exists(fullPath))
+    fs::path fullPath = fs::path(singlePathDir) / query;
+    if(!fs::exists(fullPath))
     {
      continue;
     }
@@ -111,7 +114,7 @@ void excuteProgram(std::vector<std::string>& parsed_args)
 
 void pwd(std::string& output)
 {
-  std::filesystem::path current_path = std::filesystem::current_path();
+  fs::path current_path = fs::current_path();
   output = current_path.string();
 
 }
@@ -131,9 +134,9 @@ bool changeDirectory(const std::string& pathStr)
     return true;
   }
 
-  std::filesystem::path path = std::filesystem::path(pathStr);
-  if (!std::filesystem::exists(path) ||
-      !std::filesystem::is_directory(path))
+  fs::path path = fs::path(pathStr);
+  if (!fs::exists(path) ||
+      !fs::is_directory(path))
   {
     return false;
   }
@@ -159,3 +162,24 @@ RedirectOutput checkRedirection(std::vector<std::string>& argList)
   }
   return RedirectOutput{false,0};
 }
+
+void writeToFile(std::string& content, std::string& fileName)
+{
+  fs::path path(fileName);
+
+  if (path.has_parent_path())
+  {
+    fs::create_directories(path.parent_path());
+  }
+
+  std::ofstream ofs(path);
+  if (!ofs)
+  {
+    std::cerr << "failed to open file " << path;
+    return;
+  }
+  ofs << content;
+
+}
+
+void excuteAndCapture();
