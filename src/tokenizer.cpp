@@ -1,7 +1,7 @@
 #include "tokenizer.h"
 #include "helper.h"
 
-void tokenizer(std::vector<std::string>& argList, std::string& input, int& argc)
+void tokenizer(std::vector<std::string>& argList, std::string& input, size_t& argc)
 {
   std::string currentToken;
   bool inSingleQuote = false;

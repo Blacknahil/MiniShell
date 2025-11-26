@@ -20,9 +20,11 @@ int main() {
     std::getline(std::cin, input);
 
     std::vector<std::string> argv;
-    int argc = 0;
+    size_t argc = 0;
     tokenizer(argv, input,argc);
-    // std::cout << "size : " << argc <<  "argv[0]"<< argv[0];
+
+    RedirectOutput isRedirect = checkRedirection(argv);
+
     if (argv[0] == "exit")
     {
       if (argc >1 && argv[1] == "1")
@@ -34,9 +36,26 @@ int main() {
     else if (argc >=2 && argv[0]=="echo")
     {
       std::string output;
-      // std::cout << "length : " << argv.size() -1 << "\n";
-      concatenateString(output, argv, 1);
-      std::cout << output <<"\n";
+      if (isRedirect.status && isRedirect.index+1 < argc)
+      {
+        concatenateString(output, argv, 1,isRedirect.index);
+
+        if (isRedirect.index +1 < argc)
+        {
+          // write to file 
+           std::cout << output <<"\n";
+        }
+        else 
+        {
+           std::cout << output <<"\n";
+        }
+      }
+      else 
+      {
+        concatenateString(output, argv, 1,argc);
+        std::cout << output <<"\n";
+      }
+
     }
 
     else if (argc >= 2 && argv[0] == "type")
@@ -48,7 +67,7 @@ int main() {
       else 
       {
         std::string concatenated;
-        concatenateString(concatenated, argv, 1);
+        concatenateString(concatenated, argv, 1, argc);
         std::string pathOutput;
 
         if (checkPath(pathOutput,argv[1]))

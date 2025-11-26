@@ -29,14 +29,14 @@ bool isEscape(QUOTE_STATE state, char c)
   }
 }
 
-void concatenateString(std::string& output, std::vector<std::string>& arr, int index)
+void concatenateString(std::string& output, std::vector<std::string>& arr, size_t start, size_t end)
 {
-  for (size_t i= index; i<arr.size()-1; i++)
+  for (size_t i= start; i < end-1; i++)
   {
     output+= arr[i];
     output +=" ";
   }
-  output += arr[arr.size()-1];
+  output += arr[end-1];
 }
 
 bool checkPath(std::string& output, const std::string& query)
@@ -145,4 +145,17 @@ bool changeDirectory(const std::string& pathStr)
 
   return false;
 
+}
+
+RedirectOutput checkRedirection(std::vector<std::string>& argList)
+{
+  size_t length = argList.size();
+  for(size_t i=0; i < length; i++)
+  {
+    if (argList[i] == ">" || argList[i] == "1>")
+    {
+      return RedirectOutput{true,i};
+    }
+  }
+  return RedirectOutput{false,0};
 }
