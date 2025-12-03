@@ -36,7 +36,7 @@ int main() {
     else if (argc >=2 && argv[0]=="echo")
     {
       std::string output;
-      if (isRedirect.status && isRedirect.index+1 < argc)
+      if (isRedirect.status)
       {
         concatenateString(output, argv, 1,isRedirect.index);
 
@@ -105,9 +105,27 @@ int main() {
           std::string pathOutput;
           if (checkPath(pathOutput, argv[0]))
           {
-          std::string arguments;
-          // std::cout << arguments << '\n';
-          excuteProgram(argv);
+            std::string output;
+            if (isRedirect.status)
+            {
+              excuteAndCapture(output,isRedirect.index, argv);
+              if (isRedirect.index +1 < argc)
+              {
+                // write to file 
+                writeToFile(output, argv[isRedirect.index+1]);
+              }
+              else
+              {
+                std::cout << output << "\n";
+              }
+
+            }
+            else 
+            {
+              excuteProgram(argv,argc);
+              std::cout << std::endl;
+            }
+        
           }
           else
           {
