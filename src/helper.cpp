@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -86,7 +87,7 @@ bool checkBuiltin(std::string command)
   }
   return false;
 }
-void excuteProgram(std::vector<std::string>& parsed_args)
+void excuteProgram(std::vector<std::string>& parsed_args, size_t end)
 {
   pid_t pid = fork();
   if (pid == -1)
@@ -97,7 +98,7 @@ void excuteProgram(std::vector<std::string>& parsed_args)
   else if (pid == 0)
   {
     std::vector<char*> cStyleArgs;
-    for (size_t i=0; i < parsed_args.size(); ++i)
+    for (size_t i=0; i < end; ++i)
     {
       // std::cout << "arg: " << parsed_args[i] << std::endl;
       cStyleArgs.push_back(strdup(parsed_args[i].c_str()));
@@ -182,4 +183,52 @@ void writeToFile(std::string& content, std::string& fileName)
 
 }
 
-void excuteAndCapture();
+int excuteAndCapture(std::string& output,
+                    size_t end,
+                     std::vector<std::string>& args)
+{
+  int fds[2];
+  pid_t pid;
+
+  if (pipe(fds) == -1)
+  {
+    perror("fork");
+    return -1;
+  }
+  pid = fork();
+
+  if (pid == pid_t (0))
+  {
+    // this is the child process where i want to run the command and channel back the output of the command 
+    // close read end : parent process 
+    close(fds[0]);
+
+    dup2(fds[1], STDOUT_FILENO); // redirect stdout of the child process to pipe end 
+    dup2(fds[1], STDERR_FILENO);// redirect the stderr as well to the pipe end as well
+    close(fds[1]);
+
+    std::vector<char*> cStyleArgs;
+    for (size_t i = 0; i < end; i++)
+    {
+      cStyleArgs.push_back(strdup(args[i].c_str()));
+    }
+    cStyleArgs.push_back(nullptr);
+    execvp(args[0].c_str(), cStyleArgs.data());
+    perror("execvp failed");
+    _exit(1);
+  }
+
+  // this is the parent process 
+  // close the write end of the child process 
+  char buffer[4096];
+  ssize_t n;
+  while ((n = read(fds[0], buffer, sizeof(buffer))) > 0)
+  {
+    output.append(buffer, n);
+  }
+
+  close(fds[0]);
+  // wait for the child process to finish 
+  waitpid(pid, NULL, 0);
+  return 0;
+}
