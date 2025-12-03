@@ -220,6 +220,7 @@ int excuteAndCapture(std::string& output,
 
   // this is the parent process 
   // close the write end of the child process 
+  close(fds[1]);
   char buffer[4096];
   ssize_t n;
   while ((n = read(fds[0], buffer, sizeof(buffer))) > 0)
@@ -229,6 +230,7 @@ int excuteAndCapture(std::string& output,
 
   close(fds[0]);
   // wait for the child process to finish 
-  waitpid(pid, NULL, 0);
-  return 0;
+  int status;
+  waitpid(pid, &status, 0);
+  return status;
 }

@@ -108,22 +108,23 @@ int main() {
             std::string output;
             if (isRedirect.status)
             {
-              excuteAndCapture(output,isRedirect.index, argv);
-              if (isRedirect.index +1 < argc)
+              int status_code = excuteAndCapture(output,isRedirect.index, argv);
+
+              if (isRedirect.index +1 < argc && status_code ==0)
               {
                 // write to file 
                 writeToFile(output, argv[isRedirect.index+1]);
               }
               else
               {
-                std::cout << output << "\n";
+                std::cout << output;
               }
 
             }
             else 
             {
               excuteProgram(argv,argc);
-              std::cout << std::endl;
+              // std::cout << std::endl;
             }
         
           }
