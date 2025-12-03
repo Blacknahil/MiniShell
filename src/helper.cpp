@@ -179,7 +179,7 @@ void writeToFile(std::string& content, std::string& fileName)
     std::cerr << "failed to open file " << path;
     return;
   }
-  ofs << content;
+  ofs << content << "\n";
 
 }
 

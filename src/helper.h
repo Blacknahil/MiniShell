@@ -1,6 +1,7 @@
 #include <cstring>
 #include <unordered_set>
 #include <vector>
+#include <string>
 
 enum QUOTE_STATE {NORMAL, IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE};
 const char SINGLE_QUOTE = '\'';
