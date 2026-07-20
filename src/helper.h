@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+// Tracks whether the parser is inside a quote.
 enum QUOTE_STATE {NORMAL, IN_SINGLE_QUOTE, IN_DOUBLE_QUOTE};
 const char SINGLE_QUOTE = '\'';
 const char DOUBLE_QUOTE = '\"';

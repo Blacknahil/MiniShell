@@ -1,6 +1,7 @@
 #include "tokenizer.h"
 #include "helper.h"
 
+// Split input into tokens while respecting quotes.
 void tokenizer(std::vector<std::string>& argList, std::string& input, size_t& argc)
 {
   std::string currentToken;

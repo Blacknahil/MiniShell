@@ -15,6 +15,7 @@ namespace fs = std::filesystem;
 const char* ENV_VAR_NAME = "PATH";
 
 
+// Treat escaped characters inside double quotes.
 bool isEscape(QUOTE_STATE state, char c)
 {
   if (state == QUOTE_STATE::IN_DOUBLE_QUOTE)
@@ -33,6 +34,7 @@ bool isEscape(QUOTE_STATE state, char c)
   }
 }
 
+// Join arguments into one string for echo/type output.
 void concatenateString(std::string& output, std::vector<std::string>& arr, size_t start, size_t end)
 {
   for (size_t i= start; i < end-1; i++)
@@ -43,6 +45,7 @@ void concatenateString(std::string& output, std::vector<std::string>& arr, size_
   output += arr[end-1];
 }
 
+// Resolve a command name through PATH.
 bool checkPath(std::string& output, const std::string& query)
 {
   const char* path_value = getenv(ENV_VAR_NAME);
@@ -87,6 +90,7 @@ bool checkBuiltin(std::string command)
   }
   return false;
 }
+// Run an external program in a child process.
 void excuteProgram(std::vector<std::string>& parsed_args, size_t end)
 {
   pid_t pid = fork();
@@ -179,10 +183,12 @@ void writeToFile(std::string& content, std::string& fileName)
     std::cerr << "failed to open file " << path;
     return;
   }
-  ofs << content << "\n";
+  // Keep redirected output exact; do not add an extra newline.
+  ofs << content;
 
 }
 
+// Run a command and capture its output.
 int excuteAndCapture(std::string& output,
                     size_t end,
                      std::vector<std::string>& args)

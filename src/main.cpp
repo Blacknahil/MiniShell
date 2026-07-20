@@ -13,6 +13,7 @@ int main() {
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
+  // Main shell loop.
   while (true)
   {
     std::cout << "$ ";
@@ -33,6 +34,7 @@ int main() {
       }
       return 0;
     }
+    // Builtin echo handling.
     else if (argc >=2 && argv[0]=="echo")
     {
       std::string output;
@@ -100,6 +102,7 @@ int main() {
       }
 
     }
+    // Run an external command when no builtin matches.
     else
     {
           std::string pathOutput;
