@@ -9,7 +9,7 @@ SRC = src/main.cpp \
 OBJ = $(SRC:.cpp=.o)
 
 # Output binary name
-TARGET = shell
+TARGET = minishell
 
 # === Build target ===
 all: $(TARGET)
