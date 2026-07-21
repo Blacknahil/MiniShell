@@ -15,6 +15,14 @@ struct RedirectOutput
     size_t index;
 };
 
+struct ExecuteResult 
+{
+    int status;
+    std::string output;
+    std::string error; // Internal errors (pipe, fork, execvp, etc.) are captured here.
+
+};
+
 bool changeDirectory(const std::string& pathStr);
 bool checkBuiltin(std::string command);
 bool checkPath(std::string& output, const std::string& query);
@@ -25,6 +33,5 @@ void pwd(std::string& output);
 void prepareArgsExternal(std::string& output, std::vector<std::string>& arr, int index);
 RedirectOutput checkRedirection(std::vector<std::string>& argList);
 void writeToFile(std::string& content, std::string& fileName);
-int excuteAndCapture(std::string& output,
-                    size_t end,
-                     std::vector<std::string>& args);
+ExecuteResult excuteAndCapture(size_t end,
+                               std::vector<std::string>& args);

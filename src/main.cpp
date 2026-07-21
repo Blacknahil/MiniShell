@@ -45,6 +45,7 @@ int main() {
         if (isRedirect.index +1 < argc)
         {
           // write to file 
+          output += "\n";
           writeToFile(output, argv[isRedirect.index +1]);
           //  std::cout << output <<"\n";
         }
@@ -108,19 +109,17 @@ int main() {
           std::string pathOutput;
           if (checkPath(pathOutput, argv[0]))
           {
-            std::string output;
             if (isRedirect.status)
             {
-              int status_code = excuteAndCapture(output,isRedirect.index, argv);
+              ExecuteResult executeResult = excuteAndCapture(isRedirect.index, argv);
 
-              if (isRedirect.index +1 < argc && status_code ==0)
+              if (isRedirect.index +1 < argc)
               {
-                // write to file 
-                writeToFile(output, argv[isRedirect.index+1]);
+                writeToFile(executeResult.output, argv[isRedirect.index+1]);
               }
-              else
+              else if (!executeResult.output.empty())
               {
-                std::cout << output;
+                std::cout << executeResult.output;
               }
 
             }

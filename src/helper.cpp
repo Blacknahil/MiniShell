@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -189,28 +190,48 @@ void writeToFile(std::string& content, std::string& fileName)
 }
 
 // Run a command and capture its output.
-int excuteAndCapture(std::string& output,
-                    size_t end,
-                     std::vector<std::string>& args)
+ExecuteResult excuteAndCapture(size_t end,
+                               std::vector<std::string>& args)
 {
+  ExecuteResult result;
+
   int fds[2];
+  int errPipe[2];
   pid_t pid;
 
   if (pipe(fds) == -1)
   {
-    perror("fork");
-    return -1;
+    result.status = -1;
+    result.error = strerror(errno);
+    return result;
   }
+  
+  if (pipe(errPipe) == -1)
+  {
+    result.status = -1;
+    result.error = strerror(errno);
+    return result;
+  }
+
   pid = fork();
+
+  if (pid == -1)
+  {
+    result.status = -1;
+    result.error = strerror(errno);
+    return result;
+  }
+
 
   if (pid == pid_t (0))
   {
     // this is the child process where i want to run the command and channel back the output of the command 
     // close read end : parent process 
     close(fds[0]);
+    close(errPipe[0]);
 
     dup2(fds[1], STDOUT_FILENO); // redirect stdout of the child process to pipe end 
-    dup2(fds[1], STDERR_FILENO);// redirect the stderr as well to the pipe end as well
+
     close(fds[1]);
 
     std::vector<char*> cStyleArgs;
@@ -220,23 +241,47 @@ int excuteAndCapture(std::string& output,
     }
     cStyleArgs.push_back(nullptr);
     execvp(args[0].c_str(), cStyleArgs.data());
-    perror("execvp failed");
-    _exit(1);
+    
+    int err = errno;
+    write(errPipe[1], &err, sizeof(err));
+    close(errPipe[1]);
+
+    _exit(127);
   }
 
   // this is the parent process 
   // close the write end of the child process 
   close(fds[1]);
+  close(errPipe[1]);
+
   char buffer[4096];
   ssize_t n;
   while ((n = read(fds[0], buffer, sizeof(buffer))) > 0)
   {
-    output.append(buffer, n);
+    result.output.append(buffer, n);
   }
 
   close(fds[0]);
+
+    // Read execvp() error if there was one
+    int execErr;                  
+    if (read(errPipe[0], &execErr, sizeof(execErr)) > 0)
+    {
+        result.error = strerror(execErr);
+    }  
+
+  close(errPipe[0]);
+
   // wait for the child process to finish 
   int status;
   waitpid(pid, &status, 0);
-  return status;
+  if (WIFEXITED(status))
+  {
+    result.status = WEXITSTATUS(status);
+  }
+  else
+  {
+    result.status = -1;
+  }
+  return result;
 }
